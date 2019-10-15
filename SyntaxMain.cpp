@@ -4,62 +4,80 @@
 #include <string>
 
 using namespace std;
-// https://stackoverflow.com/questions/8004303/missing-template-arguments-before-token?rq=1
-// https://www.geeksforgeeks.org/exception-handling-c/
 
-int main (int argc, char **argv)
+int main (int argc, char **argv) //main method
 {
-    string input = argv[1];
-    string strand;
-    //reads files
-    ifstream infile;
-    infile.open(input);
-    GenStack <char> myStack(2);
-    int line = 0;
-    while(infile.peek() != EOF)
+    int bol = 1; //var for while loop
+    while(bol == 1) //while program is running
     {
-        line++;
-        //gets line from file
-        for(int i = 0; i < strand.size(); ++i)
+        string input = argv[1]; //takes in command line argument
+        string strand; // initializes strand
+        ifstream infile; //enables reading files
+        infile.open(input); //opens input file
+        GenStack <char> myStack(2); //creates stack
+        int line = 0; //var for line count
+        while(infile.peek() != EOF) //while input file has lines
         {
-            if(strand[i] == '{' || strand[i] == '(' || strand[i] == '[' )
+            getline(infile, strand); //gets line from file
+            ++line; //increments line counter
+            for(int i = 0; i < strand.size(); ++i) //iterates through whole line
             {
-                if(myStack.pop() == '{' && strand[i] == '{')
-                    cout << "Error: Missing '}' at end of file" << endl;
-                else if(myStack.pop() == '(' && strand[i] == '(')
-                    cout << "Error: Missing ')' at line " << line << endl;
-                else if(myStack.pop() == '[' && strand[i] == '[')
-                    cout << "Error: Missing ']' at line " << line << endl;
-                else
-                    myStack.push(strand[i]);
-
+                if(strand[i] == '{' || strand[i] == '(' || strand[i] == '[' || strand[i] == '}' || strand[i] == ')' || strand[i] == ']' ) //enters if comes across delimiter
+                {
+                    if(myStack.isEmpty()) // if stack is empty
+                    {
+                        myStack.push(strand[i]); //push element to top
+                    }
+                    else if(myStack.peek() == '{' && strand[i] != '}') // checks {} condition
+                    {
+                        cout << "Error: Missing '}' at line " << line << "." << endl; //tells user where error is
+                        infile.close(); //closes file
+                        exit(0); //exits program
+                    }
+                    else if(myStack.peek() == '(' && strand[i] != ')') // checks () condition
+                    {
+                        cout << "Error: Missing ')' at line " << line-1 << "."  << endl; //tells user where error is
+                        infile.close(); //closes file
+                        exit(0); //exits program
+                    }
+                    else if(myStack.peek() == '[' && strand[i] != ']') // checks {} condition
+                    {
+                        cout << "Error: Missing ']' at line " << line-1 << "."  << endl; //tells user where error is
+                        infile.close(); //closes file
+                        exit(0); //exits program
+                    }
+                    myStack.push(strand[i]); //push element to top
+                }
             }
         }
+
+        getline(infile, strand); //gets last line of file
+        if(strand[0] != '}') // if last line doesnt have a }
+        {
+            cout << "Error: Missing '}' at the end of the file" << endl;
+            infile.close(); //closes file
+            exit(0); //exits program
+        }
+
+        bol = 2; //exits while loop
+        infile.close(); //closes file
     }
 
-    infile.close();
-    cout << "File has no errors, congrats!" << endl;
+
+    string ans; //initializes user input
+    cout << "Delimiter syntax is correct" << endl;
+    cout << "Would you like to analyze another file? (yes/no)" << endl;
+    cout << "If you choose yes, simply type './a.out' followed by the name of your desired file. (eg. ./a.out foo.cpp). " << endl;
+    cin >> ans; //takes in user input
+
+    if (ans == "no")
+    {
+        exit(0); //exits program
+    }
+    else if (ans == "yes")
+    {
+        bol = 1; //loops back to beginning of the program
+    }
     return 0;
 
 }
-
-
-
-
-
-    // cout << endl;
-    // cout << "Array size : " << myStack.getSize() << endl;
-    // myStack.push('0');
-    // myStack.push('1');
-    // myStack.push('2');
-    // myStack.push('3');
-    // cout << "Array size : " << myStack.getSize() << endl;
-    // myStack.push('4');
-    // myStack.push('5');
-    // myStack.push('6');
-    // myStack.push('7');
-    // cout << endl;
-    // cout << "Array size : " << myStack.getSize() << endl;
-    // cout << "popping : " << myStack.pop() << endl;
-    // cout << "popping : " << myStack.pop() << endl;
-    // cout << "popping : " << myStack.pop() << endl;
